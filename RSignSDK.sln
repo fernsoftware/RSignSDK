@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSignSDK", "RSignSDK\RSignS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSignSDK.Tests", "RSignSDK.Tests\RSignSDK.Tests.csproj", "{D944E955-8250-47A5-ABB6-D6199A4CA934}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSignTestForm", "RSignTestForm\RSignTestForm.csproj", "{E09D9405-38C2-4544-A867-C6A3FFCF6F07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D944E955-8250-47A5-ABB6-D6199A4CA934}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D944E955-8250-47A5-ABB6-D6199A4CA934}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D944E955-8250-47A5-ABB6-D6199A4CA934}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E09D9405-38C2-4544-A867-C6A3FFCF6F07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E09D9405-38C2-4544-A867-C6A3FFCF6F07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E09D9405-38C2-4544-A867-C6A3FFCF6F07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E09D9405-38C2-4544-A867-C6A3FFCF6F07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

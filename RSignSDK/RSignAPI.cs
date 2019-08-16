@@ -85,9 +85,12 @@ namespace RSignSDK
                 .Single(x => _options.ExpiryType.Equals(x.Description, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        public string Send(byte[] documentByte, string documentName, string templateName, string recipientEmail, string recipientName, string subject, string body)
+        public SendEnvelopeResponse Send(List<DocumentSend> documentSend, string templateName, string recipientEmail, string recipientName, string subject, string body, string expiryType, int reminder1 = 0, int reminder2 = 0)
         {
-            var envelopeId = "";
+            // var envelopeId = "";
+
+            _expiryType = GetExpiryTypes()
+                .Single(x => expiryType.Equals(x.Description, StringComparison.InvariantCultureIgnoreCase));
 
             var initializeEnvelopeResponse = InitializeEnvelope(new InitializeEnvelopeRequest());
             var templates = GetTemplates();
@@ -99,12 +102,17 @@ namespace RSignSDK
                 DocID = initializeEnvelopeResponse.EnvelopeID
             });
 
-            var uploadLocalDocument = UploadLocalDocument(new UploadLocalDocumentRequest(documentByte)
+            useTemplateResponse.EnvelopeDetails.ExpiryType = "25b259e0-5c43-4724-b215-406aad6000c1";
+
+            foreach (var doc in documentSend)
             {
-                FileName = documentName,
-                EnvelopeID = useTemplateResponse.EnvelopeID,
-                EnvelopeStage = "InitializeUseTemplate"
-            });
+                var uploadLocalDocument = UploadLocalDocument(new UploadLocalDocumentRequest(doc.DocumentBytes)
+                {
+                    FileName = doc.DocumentName,
+                    EnvelopeID = useTemplateResponse.EnvelopeID,
+                    EnvelopeStage = "InitializeUseTemplate"
+                });
+            }
 
             var myReq = "";
             var signer = useTemplateResponse.EnvelopeDetails.RecipientList.Where(x => x.RecipientType == "Signer");
@@ -127,7 +135,9 @@ namespace RSignSDK
             {
                 EnvelopeID = myReq,
                 Message = body,
-                Subject = subject
+                Subject = subject,
+                SendReminderIn = reminder1,
+                ThenSendReminderIn = reminder2
             });
 
             var sendEnvelopeResponse = SendEnvelope(new SendEnvelopeRequest
@@ -137,12 +147,13 @@ namespace RSignSDK
                 EnvelopeTypeID = useTemplateResponse.EnvelopeTypeID
             });
 
-            envelopeId = sendEnvelopeResponse.EnvelopeId;
+            // envelopeId = sendEnvelopeResponse.EnvelopeId;
+            // envelopeId = sendEnvelopeResponse.EnvelopeCode;
 
-            return envelopeId;
+            return sendEnvelopeResponse;
         }
 
-        public string Send(string filePath, string documentName, string templateName, string recipientEmail, string recipientName, string subject, string body)
+        public SendEnvelopeResponse Send(string filePath, string documentName, string templateName, string recipientEmail, string recipientName, string subject, string body, string expiryType, int reminder1 = 0, int reminder2 = 0)
         {
             var envelopeId = "";
 
@@ -197,9 +208,10 @@ namespace RSignSDK
                 EnvelopeTypeID = useTemplateResponse.EnvelopeTypeID
             });
 
-            envelopeId = sendEnvelopeResponse.EnvelopeId;
+            // envelopeId = sendEnvelopeResponse.EnvelopeId;
+            envelopeId = sendEnvelopeResponse.EnvelopeCode;
 
-            return envelopeId;
+            return sendEnvelopeResponse;
         }
 
         public EnvelopeStatusResponse GetEnvelopeStatus(string envelopeDisplayCode)
@@ -228,6 +240,18 @@ namespace RSignSDK
                 .DeserializeObject<DownloadSignedContractResponse>(response.Content.ReadAsStringAsync().Result);
         }
 
+        public bool CancelEnvelope(string envelopeId)
+        {
+            if (!IsAuthenticated)
+            {
+                Authenticate();
+            }
+
+            var response = _httpClient.Get($"Manage/CancelEnvelopeTrans/{envelopeId}");
+
+            return response.StatusCode == HttpStatusCode.OK;
+        }
+
         public bool DeleteFinalContract(string envelopeId)
         {
             if (!IsAuthenticated)
@@ -253,6 +277,12 @@ namespace RSignSDK
             }
 
             request.SetDateFormat(_dateFormat);
+
+            //var x = new ExpiryType();
+            //x.ID = new Guid("25b259e0-5c43-4724-b215-406aad6000c1");
+            //x.Description = "1 Day";
+
+            // request.SetExpiryType(x);
             request.SetExpiryType(_expiryType);
             request.SetIpAddress(_ipAddress);
 
