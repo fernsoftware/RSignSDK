@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,11 +17,18 @@ namespace RSignSDK.Tests
         {
             using (IRSignAPI sut = new RSignAPI(GetCredentials()))
             {
-                var sendFilePath = sut.Send(@"C:\Users\Lorcan\Documents\Rmail\Contacts.pdf", "Contacts.pdf", "Template_Test", "test.sender.fern@gmail.com", "Lorcan Quinn", "SendFilepath Test 10-06", "This is a test for sending file path");
+                var sendFilePath = sut.Send(@"C:\Users\Lorcan\Documents\Rmail\Contacts.pdf", "Contacts.pdf", "Template_Test", "test.sender.fern@gmail.com", "Lorcan Quinn", "SendFilepath Test 10-06", "This is a test for sending file path", "1 Week");
                 Assert.IsNotNull(sendFilePath);
 
                 var documentByte = File.ReadAllBytes(@"C:\Users\Lorcan\Documents\Rmail\Contacts.pdf"); // NOTE: Assuming that we already will have the byte array of the document
-                var sendByteDocument = sut.Send(documentByte, "Contacts.pdf", "Template_Test", "test.sender.fern@gmail.com", "Lorcan Quinn", "SendFilepath Test 10-06", "This is a test for sending file path");
+                var documentSend = new List<DocumentSend>();
+                documentSend.Add(new DocumentSend()
+                {
+                    DocumentBytes = documentByte,
+                    DocumentName = "Contacts.pdf"
+                });
+
+                var sendByteDocument = sut.Send(documentSend, "Template_Test", "test.sender.fern@gmail.com", "Lorcan Quinn", "SendFilepath Test 10-06", "This is a test for sending file path", "1 Week");
                 Assert.IsNotNull(sendByteDocument);
 
                 var getEnvelopeStatus = sut.GetEnvelopeStatus("23395529-2607-AADE-9697-DDEB");
