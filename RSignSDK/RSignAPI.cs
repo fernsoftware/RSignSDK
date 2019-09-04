@@ -87,8 +87,6 @@ namespace RSignSDK
 
         public SendEnvelopeResponse Send(List<DocumentSend> documentSend, string templateName, string recipientEmail, string recipientName, string subject, string body, string expiryType, int reminder1 = 0, int reminder2 = 0)
         {
-            // var envelopeId = "";
-
             _expiryType = GetExpiryTypes()
                 .Single(x => expiryType.Equals(x.Description, StringComparison.InvariantCultureIgnoreCase));
 
@@ -101,8 +99,6 @@ namespace RSignSDK
                 TemplateID = template.ID,
                 DocID = initializeEnvelopeResponse.EnvelopeID
             });
-
-            useTemplateResponse.EnvelopeDetails.ExpiryType = "25b259e0-5c43-4724-b215-406aad6000c1";
 
             foreach (var doc in documentSend)
             {
@@ -146,9 +142,6 @@ namespace RSignSDK
                 UserID = useTemplateResponse.EnvelopeDetails.RecipientList.Single(x => x.RecipientType == "Sender").ID,
                 EnvelopeTypeID = useTemplateResponse.EnvelopeTypeID
             });
-
-            // envelopeId = sendEnvelopeResponse.EnvelopeId;
-            // envelopeId = sendEnvelopeResponse.EnvelopeCode;
 
             return sendEnvelopeResponse;
         }
