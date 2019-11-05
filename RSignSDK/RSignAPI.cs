@@ -11,6 +11,7 @@ using RSignSDK.Http;
 using RSignSDK.Models;
 using RSignSDK.Models.Authentication;
 using RSignSDK.Models.MasterData;
+using static RSignSDK.Contracts.Enumerations;
 
 namespace RSignSDK
 {
@@ -85,14 +86,25 @@ namespace RSignSDK
                 .Single(x => _options.ExpiryType.Equals(x.Description, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        public SendEnvelopeResponse Send(List<DocumentSend> documentSend, string templateName, string recipientEmail, string recipientName, string subject, string body, string expiryType, int reminder1 = 0, int reminder2 = 0)
+        public SendEnvelopeResponse Send(List<DocumentSend> documentSend, string templateName, string recipientEmail, string recipientName, string subject, string body, string expiryType, int reminder1 = 0, int reminder2 = 0,
+            AccessAutenticationTypes accessAutenticationType = AccessAutenticationTypes.Select, string password = "")
         {
             _expiryType = GetExpiryTypes()
-                .Single(x => expiryType.Equals(x.Description, StringComparison.InvariantCultureIgnoreCase));
+                .SingleOrDefault(x => expiryType.Equals(x.Description, StringComparison.InvariantCultureIgnoreCase));
+
+            if (_expiryType == null)
+            {
+                throw new Exception("Expiry option can not be found.");
+            }
 
             var initializeEnvelopeResponse = InitializeEnvelope(new InitializeEnvelopeRequest());
             var templates = GetTemplates();
             var template = templates.SingleOrDefault(x => x.Name == templateName);
+
+            if (template == null)
+            {
+                throw new Exception("Esignature template can not be found.");
+            }
 
             var useTemplateResponse = UseTemplate(new UseTemplateRequest
             {
@@ -127,14 +139,35 @@ namespace RSignSDK
                 myReq = addUpdateRecipientResponse.EnvelopeID;
             }
 
-            var prepareEnvelopeResponse = PrepareEnvelope(new PrepareEnvelopeRequest
+            var prepareEnvelopeRequest = new PrepareEnvelopeRequest
             {
                 EnvelopeID = myReq,
                 Message = body,
                 Subject = subject,
-                SendReminderIn = reminder1,
-                ThenSendReminderIn = reminder2
-            });
+            };
+
+            if (accessAutenticationType == AccessAutenticationTypes.Endtoend)
+            {
+                prepareEnvelopeRequest.AccessAuthType = "fc14f65b-6fe9-4211-90fb-a03f241a55be";
+                prepareEnvelopeRequest.AccessAuthenticationPassword = password;
+                prepareEnvelopeRequest.PasswordRequiredToSign = true;
+                prepareEnvelopeRequest.PasswordRequiredToOpen = true;
+                prepareEnvelopeRequest.PasswordToSign = password; // Sign document
+                prepareEnvelopeRequest.PasswordToOpen = password; // Open signed document
+                prepareEnvelopeRequest.IsRandomPassword = false;
+                prepareEnvelopeRequest.IsPasswordMailToSigner = false;
+            }
+            else if (accessAutenticationType == AccessAutenticationTypes.RequiredToOpenSigned)
+            {
+                prepareEnvelopeRequest.AccessAuthType = "5d8162da-c7a7-40be-9cf1-442fb2524ca3";
+                prepareEnvelopeRequest.AccessAuthenticationPassword = password;
+                prepareEnvelopeRequest.PasswordRequiredToSign = true;
+                prepareEnvelopeRequest.PasswordToSign = password; // Sign document
+                prepareEnvelopeRequest.IsRandomPassword = false;
+                prepareEnvelopeRequest.IsPasswordMailToSigner = false;
+            }
+
+            var prepareEnvelopeResponse = PrepareEnvelope(prepareEnvelopeRequest);
 
             var sendEnvelopeResponse = SendEnvelope(new SendEnvelopeRequest
             {
@@ -146,15 +179,21 @@ namespace RSignSDK
             return sendEnvelopeResponse;
         }
 
-        public SendEnvelopeResponse Send(string filePath, string documentName, string templateName, string recipientEmail, string recipientName, string subject, string body, string expiryType, int reminder1 = 0, int reminder2 = 0)
+        public SendEnvelopeResponse Send(string filePath, string documentName, string templateName, string recipientEmail, string recipientName, string subject, string body, string expiryType, int reminder1 = 0, int reminder2 = 0,
+            AccessAutenticationTypes accessAutenticationType = AccessAutenticationTypes.Select, string password = "")
         {
             var envelopeId = "";
 
             var initializeEnvelopeResponse = InitializeEnvelope(new InitializeEnvelopeRequest());
 
+
             var templates = GetTemplates();
 
             var template = templates.SingleOrDefault(x => x.Name == templateName);
+            if (template == null)
+            {
+                throw new Exception("Esignature template can not be found.");
+            }
 
             var useTemplateResponse = UseTemplate(new UseTemplateRequest
             {
@@ -187,12 +226,44 @@ namespace RSignSDK
                 myReq = addUpdateRecipientResponse.EnvelopeID;
             }
 
-            var prepareEnvelopeResponse = PrepareEnvelope(new PrepareEnvelopeRequest
+            var prepareEnvelopeRequest = new PrepareEnvelopeRequest
             {
                 EnvelopeID = myReq,
                 Message = body,
-                Subject = subject
-            });
+                Subject = subject,
+            };
+
+            if (accessAutenticationType == AccessAutenticationTypes.Endtoend)
+            {
+                prepareEnvelopeRequest.AccessAuthType = "fc14f65b-6fe9-4211-90fb-a03f241a55be";
+                prepareEnvelopeRequest.AccessAuthenticationPassword = password;
+                prepareEnvelopeRequest.PasswordRequiredToSign = true;
+                prepareEnvelopeRequest.PasswordRequiredToOpen = true;
+                prepareEnvelopeRequest.PasswordToSign = password; // Sign document
+                prepareEnvelopeRequest.PasswordToOpen = password; // Open signed document
+                prepareEnvelopeRequest.IsRandomPassword = false;
+                prepareEnvelopeRequest.IsPasswordMailToSigner = false;
+            }
+            else if (accessAutenticationType == AccessAutenticationTypes.RequiredToOpenSigned)
+            {
+                prepareEnvelopeRequest.AccessAuthType = "5d8162da-c7a7-40be-9cf1-442fb2524ca3";
+                prepareEnvelopeRequest.AccessAuthenticationPassword = password;
+                prepareEnvelopeRequest.PasswordRequiredToSign = true;
+                prepareEnvelopeRequest.PasswordToSign = password; // Sign document
+                prepareEnvelopeRequest.IsRandomPassword = false;
+                prepareEnvelopeRequest.IsPasswordMailToSigner = false;
+            }
+
+            var prepareEnvelopeResponse = PrepareEnvelope(prepareEnvelopeRequest);
+
+            //var prepareEnvelopeResponse = PrepareEnvelope(new PrepareEnvelopeRequest
+            //{
+            //    EnvelopeID = myReq,
+            //    Message = body,
+            //    Subject = subject,
+            //    SendReminderIn = reminder1,
+            //    ThenSendReminderIn = reminder2
+            //});
 
             var sendEnvelopeResponse = SendEnvelope(new SendEnvelopeRequest
             {
@@ -201,7 +272,6 @@ namespace RSignSDK
                 EnvelopeTypeID = useTemplateResponse.EnvelopeTypeID
             });
 
-            // envelopeId = sendEnvelopeResponse.EnvelopeId;
             envelopeId = sendEnvelopeResponse.EnvelopeCode;
 
             return sendEnvelopeResponse;
@@ -402,6 +472,25 @@ namespace RSignSDK
                 .DeserializeObject<TemplateList>(response.Content.ReadAsStringAsync().Result)
                 .Templates
                 .ToList();
+        }
+
+        /// <summary>
+        /// Returns the available templates.
+        /// </summary>
+        /// <returns>The response from the GetTemplates API method, as returned by RSign.</returns>
+        public IEnumerable<AccessAuthType> GetAuthTypes()
+        {
+            if (!IsAuthenticated)
+            {
+                Authenticate();
+            }
+
+            var response = _httpClient.Get("Dashboard/GetMasterData/AccessAuthType");
+
+            return JsonConvert
+                .DeserializeObject<MasterDataList<AccessAuthType>>(response.Content.ReadAsStringAsync().Result)
+                .MasterList
+                .AsEnumerable();
         }
 
         /// <summary>

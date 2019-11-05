@@ -31,6 +31,8 @@ namespace RSignSDK.Contracts
 
         #region Master Data
 
+        IEnumerable<AccessAuthType> GetAuthTypes();
+
         IEnumerable<Control> GetControls();
 
         IEnumerable<DateFormat> GetDateFormats();

@@ -139,6 +139,7 @@ namespace RSignSDK.Tests
                 Assert.IsNotNull(sendEnvelopeResponse.StatusMessage);
                 Assert.IsNotNull(sendEnvelopeResponse.Message);
                 Assert.IsNotNull(sendEnvelopeResponse.EnvelopeId);
+                Assert.IsNotNull(sendEnvelopeResponse.SignDoumentUrl);
 
                 //var request = useTemplateResponse.EnvelopeDetails.EDisplayCode;
 

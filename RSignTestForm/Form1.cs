@@ -11,6 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using static RSignSDK.Contracts.Enumerations;
+using static RSignSDK.RSignAPI;
 
 namespace RSignTestForm
 {
@@ -44,7 +46,11 @@ namespace RSignTestForm
                         "Mr. James",
                         "Have a loan on us",
                         "An email body :o",
-                        "60 Days");
+                        "60 Days",
+                        0, 0,
+                        AccessAutenticationTypes.Endtoend,
+                        "james"
+                        );
 
                     Console.WriteLine($"The signing request has been sent and responded with the identifier {envelopeId}");
                 }
@@ -68,7 +74,7 @@ namespace RSignTestForm
                     CultureInfo = "en-us"
                 };
 
-                var expiryType = "60 Days";
+                var expiryType = "60 Dayss";
                 var docNum = 1;
                 //var emailBody = $@"<html><head><meta http - equiv = ""Content-Type"" content = ""text/html; charset=us-ascii""></head>
                 // var emailBody = $@"<body><div><p style=""font - size:18px;"">This esignature document expires in <b>{expiryType}</b></p></div></body></html>";

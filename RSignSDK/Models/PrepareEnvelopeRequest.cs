@@ -7,7 +7,7 @@ namespace RSignSDK.Models
         public PrepareEnvelopeRequest()
         {
             PasswordRequiredToSign = false;
-            PasswordRequiredtoOpen = false;
+            PasswordRequiredToOpen = false;
             PasswordToSign = null;
             PasswordToOpen = null;
             IsTransparencyDocReq = false;
@@ -50,11 +50,11 @@ namespace RSignSDK.Models
 
         public bool PasswordRequiredToSign { get; set; }
 
-        public bool PasswordRequiredtoOpen { get; set; }
+        public bool PasswordRequiredToOpen { get; set; }
 
-        public bool? PasswordToSign { get; set; }
+        public string PasswordToSign { get; set; }
 
-        public bool? PasswordToOpen { get; set; }
+        public string PasswordToOpen { get; set; }
 
         public bool IsTransparencyDocReq { get; set; }
 
@@ -78,7 +78,7 @@ namespace RSignSDK.Models
 
         public bool? AccessAuthenticationType { get; set; }
 
-        public bool? AccessAuthenticationPassword { get; set; }
+        public string AccessAuthenticationPassword { get; set; }
 
         public bool IsRandomPassword { get; set; }
 
