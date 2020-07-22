@@ -25,6 +25,7 @@ namespace RSignTestForm
 
         private void BtnSendPdfs_Click(object sender, EventArgs e)
         {
+            SendEnvelopeResponse sendResponse;
             try
             {
                 TestReport oRpt = new TestReport();
@@ -38,7 +39,7 @@ namespace RSignTestForm
                 var file = @"C:\Users\James\Desktop\Work\MOZY Datasheet-ReportsAPI.pdf";
                 using (var api = new RSignAPI(credentials, options))
                 {
-                    var envelopeId = api.Send(
+                    sendResponse = api.Send(
                         file,
                         "Loan Contract.pdf",
                         "Template_Test",
@@ -51,19 +52,36 @@ namespace RSignTestForm
                         AccessAutenticationTypes.Endtoend,
                         "james"
                         );
+                }
+
+                if (sendResponse.EnvelopeCode == null)
+                {
+                    var statusCode = string.Format("{0} - {1}", sendResponse.StatusCode, sendResponse.StatusMessage);
+                    var message = sendResponse.Message;
+                    var ErrorInfo = $"Status Code: {statusCode}\r\nMessage: {message}";
+
+                    MessageBox.Show(this, string.Concat("E-Signature document did not send. Please try again. \r\n\r\n ", ErrorInfo),
+                        "E-Signature Send Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                else
+                {
+                    var envelopeId = sendResponse.EnvelopeCode ?? "";
 
                     Console.WriteLine($"The signing request has been sent and responded with the identifier {envelopeId}");
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
+                MessageBox.Show(ex.ToString());
             }
 
         }
 
         private void BtnSend_Click(object sender, EventArgs e)
         {
+            SendEnvelopeResponse sendResponse;
             try
             {
                 TestReport oRpt = new TestReport();
@@ -74,7 +92,7 @@ namespace RSignTestForm
                     CultureInfo = "en-us"
                 };
 
-                var expiryType = "60 Dayss";
+                var expiryType = "60 Days";
                 var docNum = 1;
                 //var emailBody = $@"<html><head><meta http - equiv = ""Content-Type"" content = ""text/html; charset=us-ascii""></head>
                 // var emailBody = $@"<body><div><p style=""font - size:18px;"">This esignature document expires in <b>{expiryType}</b></p></div></body></html>";
@@ -102,14 +120,16 @@ namespace RSignTestForm
 
                 using (var api = new RSignAPI(credentials, options))
                 {
-                    var envelopeId = api.Send(
+                    sendResponse = api.Send(
                         documentSend,
-                        "Integration_Test",
+                        "Template_Test",
                         "james.oreilly@fernsoftware.com",
                         "Mr. James",
                         "Have a loan on us",
                         emailBody,
                         expiryType);
+
+                    var envelopeId = sendResponse.EnvelopeCode ?? "";
 
                     Console.WriteLine($"The signing request has been sent and responded with the identifier {envelopeId}");
                 }
@@ -117,7 +137,7 @@ namespace RSignTestForm
             }
             catch (Exception ex)
             {
-                throw ex;
+                MessageBox.Show(ex.ToString());
             }
         }
 
@@ -125,7 +145,7 @@ namespace RSignTestForm
         {
             try
             {
-                var credentials = new RSignAPICredentials("aaron.cullen@fernsoftware.com", "Whatever1!", "OQAxADgAQwBFADYAOQBEA");
+            var credentials = new RSignAPICredentials("aaron.cullen@fernsoftware.com", "Whatever1!", "OQAxADgAQwBFADYAOQBEA");
                 var options = new RSignAPIOptions
                 {
                     CultureInfo = "en-us",
