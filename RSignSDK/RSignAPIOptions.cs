@@ -4,7 +4,7 @@
     {
         public RSignAPIOptions()
         {
-            DateFormat = "EU";
+            DateFormat = "EU: dd/mm/yyyy";
             ExpiryType = "30 Days";
             CultureInfo = "en-us";
         }
